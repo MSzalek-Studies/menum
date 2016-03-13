@@ -53,18 +53,23 @@ double funkcja_trygonometryczna (double x) {
 double funkcja_kwadratowa(double x) {
     return (2*x);
 }
+double funkcja_wykladnicza (double x) {
+    return (pow(2, x) - 5);
+}
 
 FunkcjaNieliniowa wybierz_funkcje() {
 
     cout<<"Wybierz funkcje [1]: "<<endl;
     cout<<"[1] sin(2*x-4)"<<endl;
     cout<<"[2] 4*x*x - 3*x + 5"<<endl;
+    cout<<"[3] 2^x - 5"<<endl;
     int wybor_funkcji;
     cin>>wybor_funkcji;
 
     switch (wybor_funkcji) {
         case 1: return funkcja_trygonometryczna;
         case 2: return funkcja_kwadratowa;
+        case 3: return funkcja_wykladnicza;
         default: return funkcja_kwadratowa;
     }
 
