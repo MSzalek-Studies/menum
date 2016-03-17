@@ -3,7 +3,7 @@
 #include <iostream>
 #include <cmath>
 
-bool czy_dokladnosc, czy_bisekcja = true;
+bool czy_dokladnosc;
 double dokladnosc;
 int liczba_iteracji;
 double wczytany_poczatek_przedzialu, wczytany_koniec_przedzialu;
@@ -26,7 +26,7 @@ double metoda_bisekcji(FunkcjaNieliniowa fun) {
 }
 
 double metoda_siecznych(FunkcjaNieliniowa fun) {
-    return koniec_przedzialu - fun(koniec_przedzialu)*(koniec_przedzialu-poczatek_przedzialu)/(fun(koniec_przedzialu)-fun(poczatek_przedzialu));
+    return poczatek_przedzialu - fun(poczatek_przedzialu)*(koniec_przedzialu-poczatek_przedzialu)/(fun(koniec_przedzialu)-fun(poczatek_przedzialu));
 }
 
 int main() {
@@ -37,10 +37,9 @@ int main() {
     wybierz_kryterium_zakonczenia();
     wczytaj_krance_przedzialu(wybrana_funkcja);
 
-    cout<<"\nMETODA BISEKCJI:\n\n";
+    cout<<"METODA BISEKCJI:\n";
     double pierwiastek_bisekcji = szacuj_pierwiastek(wybrana_funkcja, metoda_bisekcji);
-    cout<<"\nMETODA SIECZNYCH:\n\n";
-    czy_bisekcja = false;
+    cout<<"METODA SIECZNYCH:\n";
     double pierwiastek_siecznych = szacuj_pierwiastek(wybrana_funkcja, metoda_siecznych);
 
     rysuj_wykres(pierwiastek_bisekcji, pierwiastek_siecznych, wybrana_funkcja);
@@ -60,7 +59,7 @@ double funkcja_wykladnicza (double x) {
 
 FunkcjaNieliniowa wybierz_funkcje() {
 
-    cout<<"Wybierz funkcje [1-3]: "<<endl;
+    cout<<"Wybierz funkcje [1]: "<<endl;
     cout<<"[1] sin(2*x-4)"<<endl;
     cout<<"[2] 4*x*x - 3*x + 5"<<endl;
     cout<<"[3] 2^x - 5"<<endl;
@@ -115,27 +114,12 @@ void wczytaj_krance_przedzialu (FunkcjaNieliniowa fun) {
     } while (czy_rowne_znaki(wczytany_poczatek_przedzialu, wczytany_koniec_przedzialu, fun) && wyswietl_komunikat_o_zlych_krancach());
 }
 
-void aktualizuj_krance_metoda_bisekcji(FunkcjaNieliniowa fun){
-
+void aktualizuj_krance(FunkcjaNieliniowa fun){
     if( czy_rowne_znaki(poczatek_przedzialu, pierwiastek, fun))
         poczatek_przedzialu = pierwiastek;
     else
         koniec_przedzialu = pierwiastek;
 }
-
-void aktualizuj_krance_metoda_siecznych (FunkcjaNieliniowa fun) {
-
-    koniec_przedzialu = poczatek_przedzialu;
-    poczatek_przedzialu = pierwiastek;
-}
-
-void aktualizuj_krance(FunkcjaNieliniowa fun) {
-    if(czy_bisekcja)
-        aktualizuj_krance_metoda_bisekcji(fun);
-    else
-        aktualizuj_krance_metoda_siecznych(fun);
-}
-
 void licz_wg_dokladnosci(FunkcjaNieliniowa fun, MetodaLiczenia metodaLiczenia) {
     int przeprowadzonychIteracji = 1;
     pierwiastek = metodaLiczenia(fun);
