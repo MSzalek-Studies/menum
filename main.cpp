@@ -3,10 +3,10 @@
 #include <iostream>
 #include <cmath>
 
-bool czy_dokladnosc, czy_bisekcja;
+bool czy_dokladnosc, czy_bisekcja = true;
 double dokladnosc;
 int liczba_iteracji;
-double wczytany_poczatek_przedzialu, wczytany_koniec_przedzialu, poprzedni_poczatek_przedzialu;
+double wczytany_poczatek_przedzialu, wczytany_koniec_przedzialu;
 double poczatek_przedzialu, koniec_przedzialu, pierwiastek, poprzedni_pierwiastek;
 
 typedef double (*FunkcjaNieliniowa)(double x);
@@ -22,12 +22,10 @@ double funkcja_kwadratowa(double x);
 FunkcjaNieliniowa wybierz_funkcje();
 
 double metoda_bisekcji(FunkcjaNieliniowa fun) {
-    czy_bisekcja = true;
     return (poczatek_przedzialu + koniec_przedzialu) / 2;
 }
 
 double metoda_siecznych(FunkcjaNieliniowa fun) {
-    czy_bisekcja = false;
     return koniec_przedzialu - fun(koniec_przedzialu)*(koniec_przedzialu-poczatek_przedzialu)/(fun(koniec_przedzialu)-fun(poczatek_przedzialu));
 }
 
@@ -42,6 +40,7 @@ int main() {
     cout<<"\nMETODA BISEKCJI:\n\n";
     double pierwiastek_bisekcji = szacuj_pierwiastek(wybrana_funkcja, metoda_bisekcji);
     cout<<"\nMETODA SIECZNYCH:\n\n";
+    czy_bisekcja = false;
     double pierwiastek_siecznych = szacuj_pierwiastek(wybrana_funkcja, metoda_siecznych);
 
     rysuj_wykres(pierwiastek_bisekcji, pierwiastek_siecznych, wybrana_funkcja);
