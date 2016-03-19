@@ -38,6 +38,8 @@ void metoda_siecznych(FunkcjaNieliniowa fun) {
 int main() {
     Gnuplot::set_GNUPlotPath( GNUPLOT_PATH );
 
+cout.precision(11);
+    while (true) {
     FunkcjaNieliniowa wybrana_funkcja = wybierz_funkcje();
     wybierz_kryterium_zakonczenia();
     wczytaj_krance_przedzialu(wybrana_funkcja);
@@ -48,7 +50,7 @@ int main() {
     double pierwiastek_siecznych = szacuj_pierwiastek(wybrana_funkcja, metoda_siecznych);
 
     rysuj_wykres(pierwiastek_bisekcji, pierwiastek_siecznych, wybrana_funkcja);
-
+    }
     return 0;
 }
 
@@ -62,7 +64,7 @@ double funkcja_wykladnicza (double x) {
     return (pow(2, x) - 3*x);
 }
 double zlozenie_funkcji (double x) {
-    return wielomian(x) * funkcja_wykladnicza(x);
+    return (pow(2,x) - 8*x*x + cos(x));
 }
 
 FunkcjaNieliniowa wybierz_funkcje() {
@@ -71,7 +73,7 @@ FunkcjaNieliniowa wybierz_funkcje() {
     cout<<"[1] sin(2*x-4)"<<endl;
     cout<<"[2] x^3 - x^2 - 2*x + 1"<<endl;
     cout<<"[3] 2^x - 3*x"<<endl;
-    cout<<"[4] (x^3 - 2^2 - 2*x + 1) * (2^x - 3*x)"<<endl;
+    cout<<"[4] 2^x - 8*x^2 + cos(x)"<<endl;
     int wybor_funkcji;
     cin>>wybor_funkcji;
 
@@ -96,21 +98,21 @@ void wybierz_kryterium_zakonczenia() {
         czy_dokladnosc = true;
         cout<<"Podaj dokladnosc: ";
         cin>>dokladnosc;
-        double temp_dokladnosc = dokladnosc;
-        int cyfry_znaczace=0;
+        /*double temp_dokladnosc = dokladnosc;
+        int cyfry_znaczace = 0;
         while (temp_dokladnosc < 1) {
             temp_dokladnosc *= 10;
             cyfry_znaczace++;
         }
         cout<<cyfry_znaczace<<endl;
-        cout.precision(cyfry_znaczace);
+        cout.precision(cyfry_znaczace);*/
     }
     else if (kryterium_zakonczenia == 2)
     {
         czy_dokladnosc = false;
         cout<<"Podaj liczba iteracji: ";
         cin>>liczba_iteracji;
-        cout.precision(10);
+        //cout.precision(10);
     }
 }
 
@@ -163,6 +165,10 @@ void licz_wg_iteracji(FunkcjaNieliniowa fun, MetodaLiczenia metodaLiczenia) {
 double szacuj_pierwiastek(FunkcjaNieliniowa fun, MetodaLiczenia metodaLiczenia) {
     poczatek_przedzialu = wczytany_poczatek_przedzialu;
     koniec_przedzialu = wczytany_koniec_przedzialu;
+
+    //istotne przy metodzie siecznych, nie ma znaczenia przy bisekcji, bo i tak bedzie to wyliczone.
+    poprzedni_pierwiastek = poczatek_przedzialu;
+    pierwiastek = koniec_przedzialu;
 
     if (czy_dokladnosc) {
         licz_wg_dokladnosci(fun, metodaLiczenia);
