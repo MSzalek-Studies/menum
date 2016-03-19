@@ -3,14 +3,14 @@
 #include <iostream>
 #include <cmath>
 
-bool czy_dokladnosc, czy_bisekcja = true;
+bool czy_dokladnosc;
 double dokladnosc;
 int liczba_iteracji;
 double wczytany_poczatek_przedzialu, wczytany_koniec_przedzialu;
 double poczatek_przedzialu, koniec_przedzialu, pierwiastek, poprzedni_pierwiastek;
 
 typedef double (*FunkcjaNieliniowa)(double x);
-typedef double (*MetodaLiczenia)(FunkcjaNieliniowa);
+typedef void (*MetodaLiczenia)(FunkcjaNieliniowa);
 using namespace std;
 
 void wybierz_kryterium_zakonczenia();
@@ -18,19 +18,24 @@ void wczytaj_krance_przedzialu (FunkcjaNieliniowa fun);
 double szacuj_pierwiastek(FunkcjaNieliniowa fun, MetodaLiczenia metodaLiczenia);
 void rysuj_wykres(double pierwiastek_bisekcji, double pierwiastek_siecznych, FunkcjaNieliniowa funkcja);
 double funkcja_trygonometryczna(double x);
-double funkcja_kwadratowa(double x);
+double wielomian(double x);
+double funkcja_wykladnicza (double x);
+void aktualizuj_krance(FunkcjaNieliniowa fun);
 FunkcjaNieliniowa wybierz_funkcje();
 
-double metoda_bisekcji(FunkcjaNieliniowa fun) {
-    return (poczatek_przedzialu + koniec_przedzialu) / 2;
+void metoda_bisekcji(FunkcjaNieliniowa fun) {
+    poprzedni_pierwiastek = pierwiastek;
+    pierwiastek = (poczatek_przedzialu + koniec_przedzialu) / 2;
+    aktualizuj_krance(fun);
 }
 
-double metoda_siecznych(FunkcjaNieliniowa fun) {
-    return koniec_przedzialu - fun(koniec_przedzialu)*(koniec_przedzialu-poczatek_przedzialu)/(fun(koniec_przedzialu)-fun(poczatek_przedzialu));
+void metoda_siecznych(FunkcjaNieliniowa fun) {
+    double nowy_pierwiastek = pierwiastek - fun(pierwiastek)*(pierwiastek-poprzedni_pierwiastek)/(fun(pierwiastek)-fun(poprzedni_pierwiastek));
+    poprzedni_pierwiastek = pierwiastek;
+    pierwiastek = nowy_pierwiastek;
 }
 
 int main() {
-    cout.precision(10);
     Gnuplot::set_GNUPlotPath( GNUPLOT_PATH );
 
     FunkcjaNieliniowa wybrana_funkcja = wybierz_funkcje();
@@ -40,7 +45,6 @@ int main() {
     cout<<"\nMETODA BISEKCJI:\n\n";
     double pierwiastek_bisekcji = szacuj_pierwiastek(wybrana_funkcja, metoda_bisekcji);
     cout<<"\nMETODA SIECZNYCH:\n\n";
-    czy_bisekcja = false;
     double pierwiastek_siecznych = szacuj_pierwiastek(wybrana_funkcja, metoda_siecznych);
 
     rysuj_wykres(pierwiastek_bisekcji, pierwiastek_siecznych, wybrana_funkcja);
@@ -49,29 +53,34 @@ int main() {
 }
 
 double funkcja_trygonometryczna (double x) {
-    return sin(x);
+    return sin(2*x-4);
 }
-double funkcja_kwadratowa(double x) {
-    return (2*x);
+double wielomian(double x) {
+    return x*x*x-x*x-2*x+1;
 }
 double funkcja_wykladnicza (double x) {
-    return (pow(2, x) - 5);
+    return (pow(2, x) - 3*x);
+}
+double zlozenie_funkcji (double x) {
+    return wielomian(x) * funkcja_wykladnicza(x);
 }
 
 FunkcjaNieliniowa wybierz_funkcje() {
 
-    cout<<"Wybierz funkcje [1-3]: "<<endl;
+    cout<<"Wybierz funkcje [1-4]: "<<endl;
     cout<<"[1] sin(2*x-4)"<<endl;
-    cout<<"[2] 4*x*x - 3*x + 5"<<endl;
-    cout<<"[3] 2^x - 5"<<endl;
+    cout<<"[2] x^3 - x^2 - 2*x + 1"<<endl;
+    cout<<"[3] 2^x - 3*x"<<endl;
+    cout<<"[4] (x^3 - 2^2 - 2*x + 1) * (2^x - 3*x)"<<endl;
     int wybor_funkcji;
     cin>>wybor_funkcji;
 
     switch (wybor_funkcji) {
         case 1: return funkcja_trygonometryczna;
-        case 2: return funkcja_kwadratowa;
+        case 2: return wielomian;
         case 3: return funkcja_wykladnicza;
-        default: return funkcja_kwadratowa;
+        case 4: return zlozenie_funkcji;
+        default: return wielomian;
     }
 
 }
@@ -87,12 +96,21 @@ void wybierz_kryterium_zakonczenia() {
         czy_dokladnosc = true;
         cout<<"Podaj dokladnosc: ";
         cin>>dokladnosc;
+        double temp_dokladnosc = dokladnosc;
+        int cyfry_znaczace=0;
+        while (temp_dokladnosc < 1) {
+            temp_dokladnosc *= 10;
+            cyfry_znaczace++;
+        }
+        cout<<cyfry_znaczace<<endl;
+        cout.precision(cyfry_znaczace);
     }
     else if (kryterium_zakonczenia == 2)
     {
         czy_dokladnosc = false;
         cout<<"Podaj liczba iteracji: ";
         cin>>liczba_iteracji;
+        cout.precision(10);
     }
 }
 
@@ -115,45 +133,31 @@ void wczytaj_krance_przedzialu (FunkcjaNieliniowa fun) {
     } while (czy_rowne_znaki(wczytany_poczatek_przedzialu, wczytany_koniec_przedzialu, fun) && wyswietl_komunikat_o_zlych_krancach());
 }
 
-void aktualizuj_krance_metoda_bisekcji(FunkcjaNieliniowa fun){
-
+void aktualizuj_krance(FunkcjaNieliniowa fun) {
     if( czy_rowne_znaki(poczatek_przedzialu, pierwiastek, fun))
         poczatek_przedzialu = pierwiastek;
     else
         koniec_przedzialu = pierwiastek;
 }
 
-void aktualizuj_krance_metoda_siecznych (FunkcjaNieliniowa fun) {
-
-    koniec_przedzialu = poczatek_przedzialu;
-    poczatek_przedzialu = pierwiastek;
-}
-
-void aktualizuj_krance(FunkcjaNieliniowa fun) {
-    if(czy_bisekcja)
-        aktualizuj_krance_metoda_bisekcji(fun);
-    else
-        aktualizuj_krance_metoda_siecznych(fun);
-}
-
 void licz_wg_dokladnosci(FunkcjaNieliniowa fun, MetodaLiczenia metodaLiczenia) {
     int przeprowadzonychIteracji = 1;
-    pierwiastek = metodaLiczenia(fun);
-    aktualizuj_krance(fun);
+    metodaLiczenia(fun);
     do {
-        poprzedni_pierwiastek = pierwiastek;
-        pierwiastek = metodaLiczenia(fun);
-        aktualizuj_krance(fun);
+        metodaLiczenia(fun);
         przeprowadzonychIteracji++;
     } while(fabs(pierwiastek - poprzedni_pierwiastek) >= dokladnosc);
 
     cout<<"przeprowadzonych iteracji: "<<przeprowadzonychIteracji<<endl;
 }
 void licz_wg_iteracji(FunkcjaNieliniowa fun, MetodaLiczenia metodaLiczenia) {
+    double obecna_dokladnosc;
     for( int i = 0; i < liczba_iteracji; i++) {
-        pierwiastek = metodaLiczenia(fun);
-        aktualizuj_krance(fun);
+        metodaLiczenia(fun);
+        obecna_dokladnosc = fabs(pierwiastek - poprzedni_pierwiastek);
     }
+
+    cout<<"ostateczna dokladnosc: "<<obecna_dokladnosc<<endl;
 }
 
 double szacuj_pierwiastek(FunkcjaNieliniowa fun, MetodaLiczenia metodaLiczenia) {
@@ -165,7 +169,7 @@ double szacuj_pierwiastek(FunkcjaNieliniowa fun, MetodaLiczenia metodaLiczenia) 
     } else {
         licz_wg_iteracji(fun, metodaLiczenia);
     }
-    cout<<"pierwiastek: "<<fixed<<pierwiastek<<endl;
+    cout<<"pierwiastek: "<<pierwiastek<<endl;
     return pierwiastek;
 }
 
