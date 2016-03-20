@@ -54,11 +54,22 @@ cout.precision(11);
     return 0;
 }
 
+double horner(double wsp[],int st, double x)
+{
+  double wynik = wsp[0];
+
+  for(int i=1;i<=st;i++)
+    wynik = wynik*x + wsp[i];
+
+  return wynik;
+}
+
 double funkcja_trygonometryczna (double x) {
     return sin(2*x-4);
 }
 double wielomian(double x) {
-    return x*x*x-x*x-2*x+1;
+    double wspolczynniki[] = {1, -2, -1, 1}; //x^3-x^2-2x+1
+    return horner(wspolczynniki, 3, x);
 }
 double funkcja_wykladnicza (double x) {
     return (pow(2, x) - 3*x);
