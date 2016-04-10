@@ -199,9 +199,10 @@ double* wyliczWartosciMacierzyN () {
 
     double* macierzN = new double [liczbaRownan];
     for(int i = 0; i < liczbaRownan; i++)
+    {
         //N[i] = D[i]^-1 gdzie D to macierz diagonalna (wartosci z glownej przekatnej macierzy A)
         macierzN[i] = (1/A[i][i]);
-
+    }
     return macierzN;
 }
 
@@ -209,10 +210,14 @@ double** wyliczWartosciMacierzyM () {
     //  M = -N * (L + U) , gdzie L + U sa to wartosci z macierzy A nad i pod glowna przekatna
     double** macierzM = new double* [liczbaRownan];
     for(int i = 0; i < liczbaRownan; i++)
+    {
         macierzM[i] = new double[liczbaRownan];
+    }
 
-    for (int i = 0; i < liczbaRownan; i++) {
-        for (int j = 0; j < liczbaRownan; j++) {
+    for (int i = 0; i < liczbaRownan; i++)
+    {
+        for (int j = 0; j < liczbaRownan; j++)
+        {
             double wartosc;
             if (i == j)
                 wartosc = 0;           //dlatego, ze w powyzszym wzorze mamy L + U wiec wartosci na glownej przekatnej maja wynosic 0
@@ -224,7 +229,7 @@ double** wyliczWartosciMacierzyM () {
     return macierzM;
 }
 
-void wyliczWartosciMacierzyWynikowej () {
+void wyliczWartosciMacierzyWynikowej() {
 
     if (czyDokladnosc)
         liczWgDokladnosci();
@@ -232,21 +237,27 @@ void wyliczWartosciMacierzyWynikowej () {
         liczWgLiczbyIteracji();
 }
 
-void metodaJacobiego () {
+void metodaJacobiego() {
 
-    for (int j=0; j < liczbaRownan; j++) {
-            macierzX[j] = N[j]*b[j];
-            for(int k = 0; k < liczbaRownan; k++)
-                macierzX[j] += M[j][k]*poprzedniaMacierzX[k];
+    for (int i=0; i < liczbaRownan; i++)
+    {
+        macierzX[i] = N[i]*b[i];
+        for(int j = 0; j < liczbaRownan; j++)
+        {
+            macierzX[i] += M[i][j]*poprzedniaMacierzX[j];
         }
+    }
 }
 void liczWgDokladnosci () {
 
-    int liczbaPrzeprowadzonychIteracji = 0;
+    int liczbaPrzeprowadzonychIteracji = 1;
+    metodaJacobiego();
+
     do {
             for (int i=0; i<liczbaRownan; i++)
+            {
                 poprzedniaMacierzX[i] = macierzX[i];
-
+            }
             metodaJacobiego();
             liczbaPrzeprowadzonychIteracji++;
 
