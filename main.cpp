@@ -231,6 +231,11 @@ double** wyliczWartosciMacierzyM () {
 
 void wyliczWartosciMacierzyWynikowej() {
 
+    for(int i = 0; i < liczbaRownan; i++)
+    {
+        macierzX[i] = 0;
+    }
+
     if (czyDokladnosc)
         liczWgDokladnosci();
     else
@@ -238,6 +243,11 @@ void wyliczWartosciMacierzyWynikowej() {
 }
 
 void metodaJacobiego() {
+
+    for (int i=0; i<liczbaRownan; i++)
+    {
+        poprzedniaMacierzX[i] = macierzX[i];
+    }
 
     for (int i=0; i < liczbaRownan; i++)
     {
@@ -250,27 +260,21 @@ void metodaJacobiego() {
 }
 void liczWgDokladnosci () {
 
-    int liczbaPrzeprowadzonychIteracji = 1;
-    metodaJacobiego();
+    int liczbaPrzeprowadzonychIteracji = 0;
 
     do {
-            for (int i=0; i<liczbaRownan; i++)
-            {
-                poprzedniaMacierzX[i] = macierzX[i];
-            }
             metodaJacobiego();
             liczbaPrzeprowadzonychIteracji++;
 
     } while (!czySpelnionaDokladnosc(poprzedniaMacierzX, macierzX));
 
-    cout<<"Przeprowadzonych iteracji: "<<liczbaPrzeprowadzonychIteracji<<endl;
+    liczbaIteracji = liczbaPrzeprowadzonychIteracji;
 }
 
 bool czySpelnionaDokladnosc (double* poprzedniaMacierzX, double* macierzX) {
 
     for(int i = 0; i < liczbaRownan; i++) {
         if(abs (poprzedniaMacierzX[i] - macierzX[i]) > dokladnosc) {
-            cout<<abs(poprzedniaMacierzX[i] - macierzX[i])<<endl;
             return false;
         }
     }
@@ -278,11 +282,19 @@ bool czySpelnionaDokladnosc (double* poprzedniaMacierzX, double* macierzX) {
 }
 void liczWgLiczbyIteracji () {
 
-    for (int i=0; i<liczbaIteracji; i++) {
+    for (int i=0; i<liczbaIteracji; i++)
+    {
         metodaJacobiego();
-        for (int i=0; i<liczbaRownan; i++)
-            poprzedniaMacierzX[i] = macierzX[i];
     }
+    double najwiekszaRoznica = 0;
+    for(int i = 0; i < liczbaRownan; i++)
+    {
+        double roznica = abs(macierzX[i] - poprzedniaMacierzX[i]);
+        if (roznica > najwiekszaRoznica)
+            najwiekszaRoznica = roznica;
+    }
+
+    dokladnosc = najwiekszaRoznica;
 }
 void wyswietlMacierze() {
 
@@ -297,6 +309,10 @@ void wyswietlMacierze() {
     cout<<endl<<"Wynik: "<<endl<<endl;
     czyMacierzWynikowa = true;
     wyswietlMacierz(macierzX);
+    cout<<"\n\nPrzeprowadzonych iteracji: "<<liczbaIteracji<<endl;
+    cout<<"Dokladnosc: "<<dokladnosc;
+
+
 }
 
 void wyswietlMacierzDwuwymiarowa (double** macierz) {
