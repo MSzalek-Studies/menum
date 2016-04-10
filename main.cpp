@@ -19,8 +19,6 @@ void wyborWarunkuZakonczeniaAlgorytmu ();
 void pobierzDaneZPlikuDoMacierzyAOrazB ();
 double* wyliczWartosciMacierzyN ();
 double** wyliczWartosciMacierzyM ();
-bool czyMacierzAZbieznaWiersze ();
-bool czyMacierzAZbieznaKolumny ();
 bool czyMacierzAZbiezna();
 bool czyMacierzAZbieznaDlaKolumn();
 bool czyMacierzAZbieznaDlaWierszy();
@@ -37,10 +35,10 @@ int main() {
     cout<<"Podaj liczbe rownan: ";
     cin>>liczbaRownan;
     inicjalizacjaMacierzy();
-    wyborWarunkuZakonczeniaAlgorytmu();
     pobierzDaneZPlikuDoMacierzyAOrazB();
 
     if(czyMacierzAZbiezna()) {
+        wyborWarunkuZakonczeniaAlgorytmu();
         N = wyliczWartosciMacierzyN();
         M = wyliczWartosciMacierzyM();
         wyliczWartosciMacierzyWynikowej();
@@ -156,45 +154,7 @@ bool czyMacierzAZbieznaPierwiastek()
     }
     return sqrt(suma) < 1;
 }
-bool czyMacierzAZbieznaWiersze () {
 
-    double* macierzPomocnicza = new double [liczbaRownan];
-    double* macierzDiagonalna = new double [liczbaRownan];
-    for(int i = 0; i < liczbaRownan; i++) {
-        for(int j = 0; j < liczbaRownan; j++) {
-            if(i!=j)
-                macierzPomocnicza[i] += abs(A[i][j]);
-            else
-                macierzDiagonalna[i] = abs(A[i][j]);
-        }
-    }
-
-    for (int i = 0; i < liczbaRownan; i++) {
-        if(macierzDiagonalna[i] < macierzPomocnicza[i])
-            return false;
-    }
-    return true;
-}
-
-bool czyMacierzAZbieznaKolumny () {
-
-    double* macierzPomocnicza = new double [liczbaRownan];
-    double* macierzDiagonalna = new double [liczbaRownan];
-    for(int j = 0; j < liczbaRownan; j++) {
-        for(int i = 0; i < liczbaRownan; i++) {
-            if(j!=i)
-                macierzPomocnicza[j] += abs(A[i][j]);
-            else
-                macierzDiagonalna[j] = abs(A[i][j]);
-        }
-    }
-
-    for (int i = 0; i < liczbaRownan; i++) {
-        if(macierzDiagonalna[i] < macierzPomocnicza[i])
-            return false;
-    }
-    return true;
-}
 double* wyliczWartosciMacierzyN () {
 
     double* macierzN = new double [liczbaRownan];
@@ -311,8 +271,6 @@ void wyswietlMacierze() {
     wyswietlMacierz(macierzX);
     cout<<"\n\nPrzeprowadzonych iteracji: "<<liczbaIteracji<<endl;
     cout<<"Dokladnosc: "<<dokladnosc;
-
-
 }
 
 void wyswietlMacierzDwuwymiarowa (double** macierz) {
