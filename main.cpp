@@ -1,5 +1,8 @@
+#include "gnuplot_i.hpp"
+#define GNUPLOT_PATH "C:\\gnuplot\\bin"
 #include <iostream>
 #include <cmath>
+#include <vector>
 using namespace std;
 double poczatekPrzedzialu, koniecPrzedzialu;
 int nrFunkcji, liczbaWezlow;
@@ -10,6 +13,66 @@ double *y;
 typedef double (*FunkcjaInterpolacyjna)(double x);
 FunkcjaInterpolacyjna wybranaFunkcja;
 
+void rysujWykres(vector<double> vecX, vector<double> vecY, string nazwa, Gnuplot &plot) {
+    plot.set_style( "lines" );
+    plot.plot_xy( vecX, vecY, nazwa );
+}
+void rysujFunkcjeWejsciowa(Gnuplot &plot, int liczbaProbek)
+{
+    vector<double> vecX(liczbaProbek+1);
+    vector<double> vecY(liczbaProbek+1);
+    double krok = (koniecPrzedzialu - poczatekPrzedzialu) / liczbaProbek;
+    for (int i=0; i<=liczbaProbek; i++) {
+        vecX[i] = poczatekPrzedzialu + i*krok;
+        vecY[i] = wybranaFunkcja(vecX[i]);
+        cout<<vecX[i]<<" "<<vecY[i]<<endl;
+    }
+    rysujWykres(vecX, vecY, "wejsciowa", plot);
+}
+void rysujFunkcjeInterpolowana(Gnuplot &plot, int liczbaProbek, double* wspolczynnikiWielomianu)
+{
+    vector<double> vecX(liczbaProbek+1);
+    vector<double> vecY(liczbaProbek+1);
+    double krok = (koniecPrzedzialu - poczatekPrzedzialu) / liczbaProbek;
+    for (int i=0; i<=liczbaProbek; i++) {
+        vecX[i] = poczatekPrzedzialu + i*krok;
+        vecY[i] = interpoluj(wspolczynnikiWielomianu, vecX[i]);
+        cout<<vecX[i]<<" "<<vecY[i]<<endl;
+    }
+    rysujWykres(vecX, vecY, "wyjsciowa", plot);
+    getchar();
+}
+
+void rysujPunkty(Gnuplot &plot)
+{
+    vector<double> vectorPunktyX(x, x+liczbaWezlow);
+    vector<double> vectorPunktyY(y, y+liczbaWezlow);
+    plot.set_style("points");
+    plot.set_pointsize( 2.0 );
+    plot.plot_xy( vectorPunktyX, vectorPunktyY, "punkty" );
+    getchar();
+}
+
+Gnuplot przygotujGnuPlota()
+{
+   Gnuplot::set_GNUPlotPath( GNUPLOT_PATH );
+    Gnuplot main_plot;
+    //main_plot.set_title( "tytul wykresu" );
+    main_plot.set_xlabel( "X" );
+    main_plot.set_ylabel( "Y" );
+
+    main_plot.set_grid();
+    main_plot.set_xrange(poczatekPrzedzialu, koniecPrzedzialu);
+    return main_plot;
+}
+void wyswietlWszystko(double* wspolczynnikiWielomianu)
+{
+    int liczbaProbek = 10;
+    Gnuplot gnuplot = przygotujGnuPlota();
+    rysujPunkty(gnuplot);
+    rysujFunkcjeWejsciowa(gnuplot, liczbaProbek);
+    rysujFunkcjeInterpolowana(gnuplot, liczbaProbek, wspolczynnikiWielomianu);
+}
 
 void wybierzZakresArgumentow()
 {
@@ -32,7 +95,7 @@ double horner(double wsp[],int st, double x)
 }
 
 double funkcjaTrygonometryczna (double x) {
-    return x*x-10;
+    return x;
 }
 
 double wielomian(double x) {
@@ -163,13 +226,15 @@ double interpoluj(double* wspolczynniki, double xx)
     }
     return wynik;
 }
+
 int main()
 {
     wyborParametrowProgramu();
     inicjalizujTablice();
-
     wyliczWartosciFunkcjiDlaX(wybranaFunkcja);
+
     double* wspolczynnikiWielomianu = wyliczWspolczynniki();
+    wyswietlWszystko(wspolczynnikiWielomianu);
 
     return 0;
 }
