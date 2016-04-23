@@ -108,12 +108,68 @@ void wyliczWartosciFunkcjiDlaX(FunkcjaInterpolacyjna funkcja)
         y[i] = funkcja(x[i]);
     }
 }
+
+int** wyliczTrojkatPascala(int ileWierszy)
+{
+    int** trojkatPascala = new int*[ileWierszy];
+    for (int i = 0; i < ileWierszy; i++)
+    {
+        trojkatPascala[i] = new int[i+1];
+        trojkatPascala[i][0] = 1;
+        trojkatPascala[i][i] = 1;
+        for (int j = 0; j < i-1; j++)
+        {
+            trojkatPascala[i][j+1] = trojkatPascala[i-1][j] + trojkatPascala[i-1][j+1];
+        }
+    }
+    return trojkatPascala;
+}
+
+double wyliczDelta(int* wspolczynnikiDelty, int stopien)
+{
+    double delta = 0;
+    int wspolczynnikZnaku = 1;
+    for (int i = 0; i < stopien+1; i++)
+    {
+        delta += wspolczynnikiDelty[i] * y[stopien-i];
+        wspolczynnikZnaku *= -1;
+    }
+    return delta;
+}
+
+double* wyliczWspolczynniki()
+{
+    double* wspolczynniki = new double[liczbaWezlow];
+    double iloraz = 1;
+    int** trojkatPascala = wyliczTrojkatPascala(liczbaWezlow);
+    wspolczynniki[0] = y[0];
+    for (int i = 1; i < liczbaWezlow; i++)
+    {
+        double delta = wyliczDelta(trojkatPascala[i], i);
+        iloraz *= i*krok;
+        wspolczynniki[i] = delta / iloraz;
+    }
+    return wspolczynniki;
+}
+
+double interpoluj(double* wspolczynniki, double xx)
+{
+    double wynik = wspolczynniki[0];
+    double tempX = 1;
+    for (int i = 0; i < liczbaWezlow-1; i++)
+    {
+        tempX *= (xx - x[i]);
+        wynik += wspolczynniki[i+1] * tempX;
+    }
+    return wynik;
+}
 int main()
 {
     wyborParametrowProgramu();
     inicjalizujTablice();
 
     wyliczWartosciFunkcjiDlaX(wybranaFunkcja);
-    cout<<"Krok: "<<krok;
+    double* wspolczynnikiWielomianu = wyliczWspolczynniki();
+
     return 0;
 }
