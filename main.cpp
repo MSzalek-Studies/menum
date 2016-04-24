@@ -58,7 +58,7 @@ double funkcjaLiniowa (double x) {
 }
 
 double wartoscBezwzgledna(double x) {
-    return fabs(x*x*x - 8);
+    return (fabs(x*x*x - 3*x*x + 8) - 4*x*x + 5);
 }
 
 double funkcjaTrygonometryczna (double x) {
@@ -103,7 +103,7 @@ FunkcjaInterpolacyjna wybierzFunkcje()
 {
     cout<<"\nWybierz funkcje: "<<endl;
     cout<<"[1] 2*x - 10"<<endl;
-    cout<<"[2] |x^3 - 8|"<<endl;
+    cout<<"[2] |x^3 - 3x^2 + 8| - 4"<<endl;
     cout<<"[3] 2*sin(x + 2)"<<endl;
     cout<<"[4] 2*sin(x) + 3*x "<<endl;
     cout<<"[5] Wielomian (nalezy podac wspolczynniki wielomianu)"<<endl;
@@ -257,7 +257,7 @@ void rysujFunkcjeWejsciowa(Gnuplot &plot, int liczbaProbek)
         vecX[i] = poczatekPrzedzialu + i*krok;
         vecY[i] = wybranaFunkcja(vecX[i]);
     }
-    rysujWykres(vecX, vecY, "wejsciowa", plot);
+    rysujWykres(vecX, vecY, "funkcja wejsciowa", plot);
 }
 
 void rysujFunkcjeInterpolowana(Gnuplot &plot, int liczbaProbek, double* wspolczynnikiWielomianu)
@@ -269,7 +269,7 @@ void rysujFunkcjeInterpolowana(Gnuplot &plot, int liczbaProbek, double* wspolczy
         vecX[i] = poczatekPrzedzialu + i*krok;
         vecY[i] = interpoluj(wspolczynnikiWielomianu, vecX[i]);
     }
-    rysujWykres(vecX, vecY, "wyjsciowa", plot);
+    rysujWykres(vecX, vecY, "funkcja wyjsciowa", plot);
     getchar();
 }
 
