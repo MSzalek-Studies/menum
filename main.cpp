@@ -103,7 +103,7 @@ FunkcjaInterpolacyjna wybierzFunkcje()
 {
     cout<<"\nWybierz funkcje: "<<endl;
     cout<<"[1] 2*x - 10"<<endl;
-    cout<<"[2] |x^3 - 3x^2 + 8| - 4"<<endl;
+    cout<<"[2] |x^3 - 3x^2 + 8| - 4x^2 + 5"<<endl;
     cout<<"[3] 2*sin(x + 2)"<<endl;
     cout<<"[4] 2*sin(x) + 3*x "<<endl;
     cout<<"[5] Wielomian (nalezy podac wspolczynniki wielomianu)"<<endl;
