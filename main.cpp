@@ -5,11 +5,13 @@
 #include <vector>
 using namespace std;
 double poczatekPrzedzialu, koniecPrzedzialu;
-int nrFunkcji, liczbaWezlow;
+int nrOpcji, nrFunkcji, liczbaWezlow;
+double *wspolczynnikiFunkcjiWielomianu;
+int stopienWielomianu;
 double krok;
 double *x;
 double *y;
-
+bool czyPlik = false, czyWyborFunkcji = true;
 double interpoluj(double* wspolczynniki, double xx);
 void rysujWszystko(double* wspolczynnikiWielomianu);
 
@@ -23,12 +25,19 @@ void wczytajPunkty(int ilePunktow)
 
     if(plik.good())
     {
+        x = new double[liczbaWezlow];
+        y = new double[liczbaWezlow];
+
         for(int i = 0; i<ilePunktow; i++)
         {
             plik>>x[i];
             plik>>y[i];
         }
         plik.close();
+        poczatekPrzedzialu = x[0];
+        koniecPrzedzialu = x[ilePunktow - 1];
+        krok = x[1] - x[0];
+
     } else {
         cout<<"Nie mozna otworzyc pliku!";
     }
@@ -37,11 +46,27 @@ void wczytajPunkty(int ilePunktow)
 void wybierzZakresArgumentow()
 {
     do {
-        cout<<"Podaj poczatek przedzialu: ";
+        cout<<"\nPodaj poczatek przedzialu: ";
         cin>>poczatekPrzedzialu;
-        cout<<"Podaj koniec przedzialu: ";
+        cout<<"\nPodaj koniec przedzialu: ";
         cin>>koniecPrzedzialu;
     } while(poczatekPrzedzialu >= koniecPrzedzialu);
+}
+
+double funkcjaLiniowa (double x) {
+    return (2*x - 10);
+}
+
+double wartoscBezwzgledna(double x) {
+    return fabs(x*x*x - 8);
+}
+
+double funkcjaTrygonometryczna (double x) {
+    return 2*sin(x + 2);
+}
+
+double zlozenieFunkcji (double x) {
+    return (2*sin(x) + 3*x);
 }
 
 double horner(double wsp[],int st, double x)
@@ -54,43 +79,47 @@ double horner(double wsp[],int st, double x)
   return wynik;
 }
 
-double funkcjaTrygonometryczna (double x) {
-    return sin(x);
-}
-
 double wielomian(double x) {
-    double wspolczynniki[] = {1, -1, -2, 1}; //x^3-x^2-2x+1
-    return horner(wspolczynniki, 3, x);
-}
+   // double wspolczynniki[] = {1, -1, -2, 1}; //x^3-x^2-2x+1
 
-double funkcjaWykladnicza (double x) {
-    return (pow(2, x) - 3*x);
-}
+    if(czyWyborFunkcji){
+        cout<<"Podaj stopien wielomianu: ";
+        cin>>stopienWielomianu;
 
-double zlozenieFunkcji (double x) {
-    return (pow(2,x) - 8*x*x + cos(x));
+        wspolczynnikiFunkcjiWielomianu = new double [stopienWielomianu+1];
+
+        for(int i=0;i<=stopienWielomianu;i++)
+        {
+            cout<<"Podaj wspolczynnik stojacy przy potedze "<<stopienWielomianu-i<<": ";
+            cin>>wspolczynnikiFunkcjiWielomianu[i];
+        }
+        czyWyborFunkcji = false;
+    }
+
+    return horner(wspolczynnikiFunkcjiWielomianu, stopienWielomianu, x);
 }
 
 FunkcjaInterpolacyjna wybierzFunkcje()
 {
-    cout<<"Wybierz funkcje: "<<endl;
-    cout<<"[1] "<<endl;
-    cout<<"[2] "<<endl;
-    cout<<"[3] "<<endl;
-    cout<<"[4] "<<endl;
+    cout<<"\nWybierz funkcje: "<<endl;
+    cout<<"[1] 2*x - 10"<<endl;
+    cout<<"[2] |x^3 - 8|"<<endl;
+    cout<<"[3] 2*sin(x + 2)"<<endl;
+    cout<<"[4] 2*sin(x) + 3*x "<<endl;
+    cout<<"[5] Wielomian (nalezy podac wspolczynniki wielomianu)"<<endl;
     cin>>nrFunkcji;
 
     switch (nrFunkcji) {
         case 1:
-            return funkcjaTrygonometryczna;
+            return funkcjaLiniowa;
         case 2:
-            return funkcjaWykladnicza;
+            return wartoscBezwzgledna;
         case 3:
-            return wielomian;
+            return funkcjaTrygonometryczna;
         case 4:
             return zlozenieFunkcji;
-        default:
-            return funkcjaTrygonometryczna;
+        case 5:
+            return wielomian;
     }
 }
 
@@ -100,17 +129,16 @@ void wybierzLiczbeWezlow()
     cin>>liczbaWezlow;
 }
 
+void wybierzOpcjePobraniaWartosciXiY ()
+{
+    cout<<"Wybierz sposob wczytania wartosci argumentow [1-2]: ";
+    cout<<"\n\n1) Pobranie punktow o wspolrzednych (x, y) z pliku";
+    cout<<"\n2) Wybranie funkcji oraz podanie poczatku i konca przedzialu\n";
+    cin>>nrOpcji;
+}
 void wyliczKrok()
 {
     krok = fabs(koniecPrzedzialu - poczatekPrzedzialu)/(liczbaWezlow - 1);
-}
-
-void wyborParametrowProgramu()
-{
-    wybranaFunkcja = wybierzFunkcje();
-    wybierzZakresArgumentow();
-    wybierzLiczbeWezlow();
-    wyliczKrok();
 }
 
 void inicjalizujTablice ()
@@ -129,6 +157,23 @@ void wyliczWartosciFunkcjiDlaX(FunkcjaInterpolacyjna funkcja)
     for(int i = 0; i < liczbaWezlow; i++)
     {
         y[i] = funkcja(x[i]);
+    }
+}
+
+void wyborParametrowProgramu()
+{
+    wybierzOpcjePobraniaWartosciXiY();
+    wybierzLiczbeWezlow();
+    if(nrOpcji == 1){
+        czyPlik = true;
+        wczytajPunkty(liczbaWezlow);
+    } else if(nrOpcji == 2){
+        czyPlik = false;
+        wybranaFunkcja = wybierzFunkcje();
+        wybierzZakresArgumentow();
+        wyliczKrok();
+        inicjalizujTablice();
+        wyliczWartosciFunkcjiDlaX(wybranaFunkcja);
     }
 }
 
@@ -190,9 +235,6 @@ double interpoluj(double* wspolczynniki, double X)
 int main()
 {
     wyborParametrowProgramu();
-    inicjalizujTablice();
-    //wczytajPunkty(3);
-    wyliczWartosciFunkcjiDlaX(wybranaFunkcja);
 
     double* wspolczynnikiWielomianu = wyliczWspolczynniki();
     rysujWszystko(wspolczynnikiWielomianu);
@@ -243,7 +285,7 @@ void rysujPunkty(Gnuplot &plot)
 
 Gnuplot przygotujGnuPlota()
 {
-   Gnuplot::set_GNUPlotPath( GNUPLOT_PATH );
+    Gnuplot::set_GNUPlotPath( GNUPLOT_PATH );
     Gnuplot main_plot;
     //main_plot.set_title( "tytul wykresu" );
     main_plot.set_xlabel( "X" );
@@ -259,6 +301,8 @@ void rysujWszystko(double* wspolczynnikiWielomianu)
     int liczbaProbek = 100;
     Gnuplot gnuplot = przygotujGnuPlota();
     rysujPunkty(gnuplot);
-    rysujFunkcjeWejsciowa(gnuplot, liczbaProbek);
+    if(!czyPlik) {
+        rysujFunkcjeWejsciowa(gnuplot, liczbaProbek);
+    }
     rysujFunkcjeInterpolowana(gnuplot, liczbaProbek, wspolczynnikiWielomianu);
 }
