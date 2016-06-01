@@ -6,29 +6,17 @@
 
 using namespace std;
 
-double tablicaWartosci[4][2][5] = { {{0.585786, 3.414214, 0, 0, 0}, {0.853553, 0.146447, 0, 0, 0}},
-                                    {{0.415775, 2.294280, 6.289945, 0, 0}, {0.711093, 0.278518, 0.010389, 0, 0}},
-                                    {{0.322548, 1.745761, 4.536620, 2.395071, 0}, {0.603154, 0.357419, 0.038888, 0.000539, 0}},
-                                    {{0.263560, 1.413403, 3.596426, 7.085810, 12.640801}, {0.521756, 0.398667, 0.075942, 0.003612, 0.000032}},
-                                };
-
 typedef double (*FunkcjaPodcalkowa)(double x);
 
 vector<double> tablicaWielomianow;
-double pierwszyWspol = 1;
 FunkcjaPodcalkowa funkcja;
 int stopienWielomianuAproksymacyjnego;
 double bladAproksymacji, dokladnosc;
 bool czyBladAproksymacji;
 double poczatekPrzedzialu, koniecPrzedzialu;
 
-double pobierzDrugiWspolczynnik(double x) {
-    return 1 - x;
-}
 double funkcjaLiniowa (double x) {
-    //return 3* x + 8;
-
-    return sqrt(x);
+    return 3* x + 8;
 }
 
 double horner(double wsp[],int st, double x)
