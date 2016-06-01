@@ -16,8 +16,8 @@ bool czyBladAproksymacji;
 double poczatekPrzedzialu, koniecPrzedzialu;
 
 double funkcjaLiniowa (double x) {
-    //return 3* x + 8;
-    return x*x*x-9*x*x+18*x-6;
+    return 3* x + 8;
+    //return x*x*x-9*x*x+18*x-6;
 }
 
 double horner(double wsp[],int st, double x)
@@ -49,7 +49,8 @@ double funkcjaTrygonometryczna (double x) {
 }
 
 double zlaczenieFunkcji(double x) {
-    return cos(x) + 3*x*x - x;
+    //return cos(x) + 3*x*x - x;
+    return sqrt(x);
 }
 
 double funkcjaWagowa(double x) {
@@ -63,7 +64,8 @@ FunkcjaPodcalkowa wybierzFunkcje()
     cout<<"[1] 3x + 8"<<endl;
     cout<<"[2] |x^3 - 5|"<<endl;
     cout<<"[3] sin(x) + cos(x)"<<endl;
-    cout<<"[4] cos(x) + 3x^2 - x"<<endl;
+    //cout<<"[4] cos(x) + 3x^2 - x"<<endl;
+    cout<<"[4] sqrt(x)"<<endl;
     cout<<"[5] x^3  + 3x^2 + 4x + 1"<<endl;
     cin>>nrFunkcji;
 
@@ -83,7 +85,7 @@ FunkcjaPodcalkowa wybierzFunkcje()
 void wybierzPrzedzial() {
     cout<<"Podaj poczatek przedzialu aproksymacji: ";
     cin>>poczatekPrzedzialu;
-    cout<<"\nPodaj koniec przedzialu aproksymacji: ";
+    cout<<"Podaj koniec przedzialu aproksymacji: ";
     cin>>koniecPrzedzialu;
 }
 
@@ -103,7 +105,7 @@ void wybierzStopien () {
 }
 
 void wybierzDokladnoscLubStopienWielomianuAproksymacji () {
-    cout<<endl<<"Podaj sposob zakonczenia algorytmu";
+    cout<<"Podaj sposob zakonczenia algorytmu";
     cout<<endl<<"[1] Podanie bledu aproksymacji";
     cout<<endl<<"[2] Podanie stopnia wielomianu"<<endl;
     int opcja;
@@ -120,7 +122,8 @@ void wybierzDokladnoscLubStopienWielomianuAproksymacji () {
 void wybierzParametry() {
     funkcja = wybierzFunkcje();
     wybierzPrzedzial();
-    wybierzDokladnosc();
+    //wybierzDokladnosc();
+    dokladnosc = 0.001;
     wybierzDokladnoscLubStopienWielomianuAproksymacji();
 }
 
@@ -148,10 +151,11 @@ vector<double> wyliczTabliceWielomianow(int stopien, double x) {
     vector<double> tablicaWiel;
     tablicaWiel.push_back(1);
     tablicaWiel.push_back(x - 1);
-
+    int silnia = 1;
     for(int k = 2; k <= stopien; k++) {
-            //cout<<"elem: "<<(x - 2*(k-1) - 1) * tablicaWiel[k - 1] - (k-1) * (k-1) * tablicaWiel[k - 2]<<endl;
-        tablicaWiel.push_back((x - 2*(k-1) - 1) * tablicaWiel[k - 1] - (k-1) * (k-1) * tablicaWiel[k - 2]);
+        double L = (x - 2*(k-1) - 1) * tablicaWiel[k - 1] - (k-1) * (k-1) * tablicaWiel[k - 2];
+        silnia *= k;
+        tablicaWiel.push_back(L/(1.0*silnia));
     }
     return tablicaWiel;
 }
@@ -166,12 +170,12 @@ double metodaSimpsona (double poczatek, double koniec, int stopien) {
             x1 = poczatek + i*h;
             x2 = x1 + 0.5*h;
             x3 = x1 + h;
-            vector<double> tab = wyliczTabliceWielomianow(stopien, x1);
-            y1 = funkcjaWagowa(x1) * funkcja(x1) * funkcjaLiniowa(x1);//* tab[stopien];
-            tab = wyliczTabliceWielomianow(stopien, x2);
-            y2 = funkcjaWagowa(x2) * funkcja(x2) * funkcjaLiniowa(x2);//* tab[stopien];
-            tab = wyliczTabliceWielomianow(stopien, x3);
-            y3 = funkcjaWagowa(x3) * funkcja(x3) * funkcjaLiniowa(x3);//* tab[stopien];
+            vector<double> tab1 = wyliczTabliceWielomianow(stopien, x1);
+            y1 = funkcjaWagowa(x1) * funkcja(x1) * tab1[stopien];
+            vector<double> tab2 = wyliczTabliceWielomianow(stopien, x2);
+            y2 = funkcjaWagowa(x2) * funkcja(x2) * tab2[stopien];
+            vector<double> tab3 = wyliczTabliceWielomianow(stopien, x3);
+            y3 = funkcjaWagowa(x3) * funkcja(x3)* tab3[stopien];
             suma += h*(y1 + 4 * y2 + y3)/6.0;
         }
         liczbaPodprzedzialowCalkowania++;
@@ -189,24 +193,24 @@ double obliczKwadratureNetwonaCotesa(int stopien) {
         poczatekPrzedzialuGranicy += 1;
         koniecPrzedzialuGranicy += 1;
 
-    } while (sumaWPrzedziale >= dokladnosc);
+    } while (abs(sumaWPrzedziale) >= dokladnosc);
     return sumaCalkowita;
 }
 
 double wyliczFunkcjeAproksymujaca(int stopien, double x) {
     vector<double> tablicaWielomianow = wyliczTabliceWielomianow(stopien, x);
-    double wynik = 0, silnia = 1;
-    cout<<endl<<"x"<<x<<endl;
-    cout<<"stopien"<<stopien<<endl<<endl;
+    double wynik = 0;
+    //cout<<endl<<"x"<<x<<endl;
+    //cout<<"stopien"<<stopien<<endl<<endl;
     for(int i = 0; i <= stopien; i++) {
-        silnia *= i != 0 ? i : 1;
         double skladnik = obliczKwadratureNetwonaCotesa(i)*tablicaWielomianow[i];
         wynik += skladnik;
-        cout<<"tab["<<i<<"]:"<<tablicaWielomianow[i]<<endl;
+        /*cout<<"tab["<<i<<"]:"<<tablicaWielomianow[i]<<endl;
+        cout<<"ca³ka: "<<obliczKwadratureNetwonaCotesa(i)<<endl;
         cout<<"skladnik: "<<skladnik<<endl;
-        cout<<"wynik skladowy: "<<wynik<<endl;
+        cout<<"wynik skladowy: "<<wynik<<endl<<endl;*/
     }
-    cout<<"WYNIK: "<<wynik<<endl;
+    //cout<<"WYNIK: "<<wynik<<endl<<endl;
     return wynik;
 }
 
@@ -280,8 +284,5 @@ int main()
 {
     wybierzParametry();
     rysujWszystko();
-    int stopien = 3;
-    cout<<"stopien = "<<stopien<<endl;
-    cout<<obliczKwadratureNetwonaCotesa(stopien);
     return 0;
 }
