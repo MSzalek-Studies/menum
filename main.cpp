@@ -22,7 +22,8 @@ double tablicaWartosci[4][2][5] = { {{0.585786, 3.414214, 0, 0, 0}, {0.853553, 0
                                 };
 
 double funkcjaLiniowa (double x) {
-    return sin(x)/2;
+    return (x*x*x -3*x*x)*pow(M_E, -4*x);
+    //return sin(x)/2;
     //return x*x*x-9*x*x+18*x-6;
 }
 
@@ -110,6 +111,82 @@ void wybierzStopien () {
     cin>>stopienWielomianuAproksymacyjnego;
 }
 
+vector<double> wyliczTabliceWielomianow(int stopien, double x) {
+    vector<double> tablicaWiel;
+    tablicaWiel.push_back(1);
+    tablicaWiel.push_back(x - 1);
+    int silnia = 1;
+    for(int k = 2; k <= stopien; k++) {
+        double L = (x - 2*(k-1) - 1) * tablicaWiel[k - 1] - (k-1) * (k-1) * tablicaWiel[k - 2];
+        silnia *= k;
+        tablicaWiel.push_back(L/(1.0*silnia));
+    }
+    return tablicaWiel;
+}double metodaGaussaLaguerra (double *tablicaPierwiastkow, double *tablicaWag, int liczba_wezlow, int stopien) {
+    double suma = 0;
+
+    for(int i = 0; i < liczba_wezlow; i++) {
+        vector<double> tab1 = wyliczTabliceWielomianow(stopien, tablicaPierwiastkow[i]);
+        suma += tablicaWag[i] * funkcja(tablicaPierwiastkow[i])* tab1[stopien];
+    }
+    return suma;
+}
+
+double wyliczFunkcjeAproksymujaca(int stopien, double x) {
+    vector<double> tablicaWielomianow = wyliczTabliceWielomianow(stopien, x);
+    double wynik = 0;
+    //cout<<endl<<"x"<<x<<endl;
+    //cout<<"stopien"<<stopien<<endl<<endl;
+    for(int i = 0; i <= stopien; i++) {
+        double calka = metodaGaussaLaguerra(tablicaWartosci[3][0], tablicaWartosci[3][1], 5, i);
+            //double calka = obliczKwadratureNetwonaCotesa(i);
+        double skladnik = calka*tablicaWielomianow[i];
+        wynik += skladnik;
+        /*cout<<"tab["<<i<<"]:"<<tablicaWielomianow[i]<<endl;
+        cout<<"ca³ka: "<<obliczKwadratureNetwonaCotesa(i)<<endl;
+        cout<<"skladnik: "<<skladnik<<endl;
+        cout<<"wynik skladowy: "<<wynik<<endl<<endl;*/
+    }
+    //cout<<"WYNIK: "<<wynik<<endl<<endl;
+    return wynik;
+}
+
+
+double obliczBlad(double poczatek, double koniec, int stopien) {
+    double suma = 0, poprzedniaSuma, h, y1, y2, y3, x1, x2, x3;
+    int liczbaPodprzedzialowCalkowania = 1;
+    do {
+        poprzedniaSuma = suma;
+        suma = 0;
+        h = ( koniec - poczatek )/(liczbaPodprzedzialowCalkowania*1.0);
+        for(int i = 0; i < liczbaPodprzedzialowCalkowania; i++) {
+            x1 = poczatek + i*h;
+            x2 = x1 + 0.5*h;
+            x3 = x1 + h;
+            y1 = funkcjaWagowa(x1) * (funkcja(x1) - wyliczFunkcjeAproksymujaca(stopien, x1)) * (funkcja(x1) - wyliczFunkcjeAproksymujaca(stopien, x1));
+            y2 = funkcjaWagowa(x2) * (funkcja(x2) - wyliczFunkcjeAproksymujaca(stopien, x2)) * (funkcja(x2) - wyliczFunkcjeAproksymujaca(stopien, x2));
+            y3 = funkcjaWagowa(x3) * (funkcja(x3) - wyliczFunkcjeAproksymujaca(stopien, x3)) * (funkcja(x3) - wyliczFunkcjeAproksymujaca(stopien, x3));
+            suma += h*(y1 + 4 * y2 + y3)/6.0;
+        }
+        liczbaPodprzedzialowCalkowania++;
+
+    } while(fabs(suma - poprzedniaSuma) >= dokladnosc);
+    return suma;
+}
+
+void wyznaczStopienWielomianuAproksymujacego (double poczatek, double koniec) {
+    int stopien = 0;
+    double blad = 0;
+    do {
+        stopien++;
+        blad = obliczBlad(poczatek, koniec, stopien);
+        cout<<endl<<blad;
+
+    } while(blad >= bladAproksymacji);
+
+    stopienWielomianuAproksymacyjnego = stopien;
+}
+
 void wybierzDokladnoscLubStopienWielomianuAproksymacji () {
     cout<<"Podaj sposob zakonczenia algorytmu";
     cout<<endl<<"[1] Podanie bledu aproksymacji";
@@ -120,6 +197,9 @@ void wybierzDokladnoscLubStopienWielomianuAproksymacji () {
 
     if(czyBladAproksymacji) {
         wybierzBladAproksymacji();
+        wyznaczStopienWielomianuAproksymujacego(poczatekPrzedzialu, koniecPrzedzialu);
+        cout<<endl<<stopienWielomianuAproksymacyjnego;
+
     } else {
         wybierzStopien();
     }
@@ -153,18 +233,7 @@ double wielomianLaguerra (int stopien, double x) {
     return suma;
 }
 
-vector<double> wyliczTabliceWielomianow(int stopien, double x) {
-    vector<double> tablicaWiel;
-    tablicaWiel.push_back(1);
-    tablicaWiel.push_back(x - 1);
-    int silnia = 1;
-    for(int k = 2; k <= stopien; k++) {
-        double L = (x - 2*(k-1) - 1) * tablicaWiel[k - 1] - (k-1) * (k-1) * tablicaWiel[k - 2];
-        silnia *= k;
-        tablicaWiel.push_back(L/(1.0*silnia));
-    }
-    return tablicaWiel;
-}
+
 double metodaSimpsona (double poczatek, double koniec, int stopien) {
     double suma = 0, poprzedniaSuma, h, y1, y2, y3, x1, x2, x3;
     int liczbaPodprzedzialowCalkowania = 1;
@@ -203,34 +272,8 @@ double obliczKwadratureNetwonaCotesa(int stopien) {
     return sumaCalkowita;
 }
 
-double metodaGaussaLaguerra (double *tablicaPierwiastkow, double *tablicaWag, int liczba_wezlow, int stopien) {
-    double suma = 0;
 
-    for(int i = 0; i < liczba_wezlow; i++) {
-        vector<double> tab1 = wyliczTabliceWielomianow(stopien, tablicaPierwiastkow[i]);
-        suma += tablicaWag[i] * funkcja(tablicaPierwiastkow[i])* tab1[stopien];
-    }
-    return suma;
-}
 
-double wyliczFunkcjeAproksymujaca(int stopien, double x) {
-    vector<double> tablicaWielomianow = wyliczTabliceWielomianow(stopien, x);
-    double wynik = 0;
-    //cout<<endl<<"x"<<x<<endl;
-    //cout<<"stopien"<<stopien<<endl<<endl;
-    for(int i = 0; i <= stopien; i++) {
-            double calka = metodaGaussaLaguerra(tablicaWartosci[3][0], tablicaWartosci[3][1], 5, i);
-            //double calka = obliczKwadratureNetwonaCotesa(i);
-        double skladnik = calka*tablicaWielomianow[i];
-        wynik += skladnik;
-        /*cout<<"tab["<<i<<"]:"<<tablicaWielomianow[i]<<endl;
-        cout<<"ca³ka: "<<obliczKwadratureNetwonaCotesa(i)<<endl;
-        cout<<"skladnik: "<<skladnik<<endl;
-        cout<<"wynik skladowy: "<<wynik<<endl<<endl;*/
-    }
-    //cout<<"WYNIK: "<<wynik<<endl<<endl;
-    return wynik;
-}
 
 //-------RYSOWANIE-------
 void rysujWykres(vector<double> vecX, vector<double> vecY, string nazwa, Gnuplot &plot) {
@@ -297,10 +340,10 @@ void rysujWszystko()
     getchar();
 }
 
-
 int main()
 {
     wybierzParametry();
     rysujWszystko();
+    cout<<"Blad: "<<obliczBlad(poczatekPrzedzialu, koniecPrzedzialu, stopienWielomianuAproksymacyjnego);
     return 0;
 }
