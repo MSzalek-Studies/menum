@@ -15,8 +15,14 @@ double bladAproksymacji, dokladnosc;
 bool czyBladAproksymacji;
 double poczatekPrzedzialu, koniecPrzedzialu;
 
+double tablicaWartosci[4][2][5] = { {{0.585786, 3.414214, 0, 0, 0}, {0.853553, 0.146447, 0, 0, 0}},
+                                    {{0.415775, 2.294280, 6.289945, 0, 0}, {0.711093, 0.278518, 0.010389, 0, 0}},
+                                    {{0.322548, 1.745761, 4.536620, 2.395071, 0}, {0.603154, 0.357419, 0.038888, 0.000539, 0}},
+                                    {{0.263560, 1.413403, 3.596426, 7.085810, 12.640801}, {0.521756, 0.398667, 0.075942, 0.003612, 0.000032}},
+                                };
+
 double funkcjaLiniowa (double x) {
-    return 3* x + 8;
+    return sin(x)/2;
     //return x*x*x-9*x*x+18*x-6;
 }
 
@@ -197,13 +203,25 @@ double obliczKwadratureNetwonaCotesa(int stopien) {
     return sumaCalkowita;
 }
 
+double metodaGaussaLaguerra (double *tablicaPierwiastkow, double *tablicaWag, int liczba_wezlow, int stopien) {
+    double suma = 0;
+
+    for(int i = 0; i < liczba_wezlow; i++) {
+        vector<double> tab1 = wyliczTabliceWielomianow(stopien, tablicaPierwiastkow[i]);
+        suma += tablicaWag[i] * funkcja(tablicaPierwiastkow[i])* tab1[stopien];
+    }
+    return suma;
+}
+
 double wyliczFunkcjeAproksymujaca(int stopien, double x) {
     vector<double> tablicaWielomianow = wyliczTabliceWielomianow(stopien, x);
     double wynik = 0;
     //cout<<endl<<"x"<<x<<endl;
     //cout<<"stopien"<<stopien<<endl<<endl;
     for(int i = 0; i <= stopien; i++) {
-        double skladnik = obliczKwadratureNetwonaCotesa(i)*tablicaWielomianow[i];
+            double calka = metodaGaussaLaguerra(tablicaWartosci[3][0], tablicaWartosci[3][1], 5, i);
+            //double calka = obliczKwadratureNetwonaCotesa(i);
+        double skladnik = calka*tablicaWielomianow[i];
         wynik += skladnik;
         /*cout<<"tab["<<i<<"]:"<<tablicaWielomianow[i]<<endl;
         cout<<"ca³ka: "<<obliczKwadratureNetwonaCotesa(i)<<endl;
