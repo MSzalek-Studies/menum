@@ -10,7 +10,7 @@ typedef double (*FunkcjaPodcalkowa)(double x);
 
 vector<double> tablicaWielomianow;
 FunkcjaPodcalkowa funkcja;
-int stopienWielomianuAproksymacyjnego;
+int stopienWielomianuAproksymacyjnego, liczbaWezlow;
 double bladAproksymacji, dokladnosc;
 bool czyBladAproksymacji;
 double poczatekPrzedzialu, koniecPrzedzialu;
@@ -22,8 +22,8 @@ double tablicaWartosci[4][2][5] = { {{0.585786, 3.414214, 0, 0, 0}, {0.853553, 0
                                 };
 
 double funkcjaLiniowa (double x) {
-    return (x*x*x -3*x*x)*pow(M_E, -4*x);
-    //return sin(x)/2;
+   // return (x*x*x -3*x*x)*pow(M_E, -4*x);
+    return sin(x)/2;
     //return x*x*x-9*x*x+18*x-6;
 }
 
@@ -122,7 +122,9 @@ vector<double> wyliczTabliceWielomianow(int stopien, double x) {
         tablicaWiel.push_back(L/(1.0*silnia));
     }
     return tablicaWiel;
-}double metodaGaussaLaguerra (double *tablicaPierwiastkow, double *tablicaWag, int liczba_wezlow, int stopien) {
+}
+
+double metodaGaussaLaguerra (double *tablicaPierwiastkow, double *tablicaWag, int liczba_wezlow, int stopien) {
     double suma = 0;
 
     for(int i = 0; i < liczba_wezlow; i++) {
@@ -138,7 +140,7 @@ double wyliczFunkcjeAproksymujaca(int stopien, double x) {
     //cout<<endl<<"x"<<x<<endl;
     //cout<<"stopien"<<stopien<<endl<<endl;
     for(int i = 0; i <= stopien; i++) {
-        double calka = metodaGaussaLaguerra(tablicaWartosci[3][0], tablicaWartosci[3][1], 5, i);
+        double calka = metodaGaussaLaguerra(tablicaWartosci[liczbaWezlow-2][0], tablicaWartosci[liczbaWezlow-2][1], liczbaWezlow, i);
             //double calka = obliczKwadratureNetwonaCotesa(i);
         double skladnik = calka*tablicaWielomianow[i];
         wynik += skladnik;
@@ -150,7 +152,6 @@ double wyliczFunkcjeAproksymujaca(int stopien, double x) {
     //cout<<"WYNIK: "<<wynik<<endl<<endl;
     return wynik;
 }
-
 
 double obliczBlad(double poczatek, double koniec, int stopien) {
     double suma = 0, poprzedniaSuma, h, y1, y2, y3, x1, x2, x3;
@@ -205,11 +206,18 @@ void wybierzDokladnoscLubStopienWielomianuAproksymacji () {
     }
 }
 
+void wybierzLiczbeWezlowDoObliczeniaCalki() {
+    cout<<endl<<"Wybierz liczbe wezlow do obliczenia calki(2,3,4,5): ";
+    cin>>liczbaWezlow;
+}
+
 void wybierzParametry() {
     funkcja = wybierzFunkcje();
     wybierzPrzedzial();
-    //wybierzDokladnosc();
-    dokladnosc = 0.001;
+    wybierzDokladnosc();
+    wybierzLiczbeWezlowDoObliczeniaCalki();
+    //dokladnosc = 0.001;
+
     wybierzDokladnoscLubStopienWielomianuAproksymacji();
 }
 
