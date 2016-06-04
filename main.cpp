@@ -22,9 +22,7 @@ double tablicaWartosci[4][2][5] = { {{0.585786, 3.414214, 0, 0, 0}, {0.853553, 0
                                 };
 
 double funkcjaLiniowa (double x) {
-   // return (x*x*x -3*x*x)*pow(M_E, -4*x);
-    return sin(x)/2;
-    //return x*x*x-9*x*x+18*x-6;
+    return 2*x + 7;
 }
 
 double horner(double wsp[],int st, double x)
@@ -38,26 +36,27 @@ double horner(double wsp[],int st, double x)
 }
 
 double wartoscBezwzgledna(double x) {
-    int stopienWielomianu = 3;
-    double wspolczynnikiFunkcjiWielomianu[] = {1, 0, 0, -5};
-    return abs(horner(wspolczynnikiFunkcjiWielomianu, stopienWielomianu, x));
+    return abs(x - 5);
+}
+
+double funkcjaKwadratowa(double x) {
+    return x*x -3*x + 8;
 }
 
 double wielomian(double x) {
 
     int stopienWielomianu = 3;
-    double wspolczynnikiFunkcjiWielomianu[] = {1, 3, 4, 1};
+    double wspolczynnikiFunkcjiWielomianu[] = {-1/6, 7/6, -3, 2};
 
     return horner(wspolczynnikiFunkcjiWielomianu, stopienWielomianu, x);
 }
 
 double funkcjaTrygonometryczna (double x) {
-    return sin(x) + cos(x);
+    return cos(x);
 }
 
 double zlaczenieFunkcji(double x) {
-    //return cos(x) + 3*x*x - x;
-    return sqrt(x);
+    return cos(x) + 3*x*x - x;
 }
 
 double funkcjaWagowa(double x) {
@@ -68,24 +67,26 @@ FunkcjaPodcalkowa wybierzFunkcje()
 {
     int nrFunkcji;
     cout<<"Wybierz aproksymowana funkcje: "<<endl;
-    cout<<"[1] 3x + 8"<<endl;
-    cout<<"[2] |x^3 - 5|"<<endl;
-    cout<<"[3] sin(x) + cos(x)"<<endl;
-    //cout<<"[4] cos(x) + 3x^2 - x"<<endl;
-    cout<<"[4] sqrt(x)"<<endl;
-    cout<<"[5] x^3  + 3x^2 + 4x + 1"<<endl;
+    cout<<"[1] 2x + 7"<<endl;
+    cout<<"[2] x^2 -3x + 8"<<endl;
+    cout<<"[3] |x - 5|"<<endl;
+    cout<<"[4] cos(x)"<<endl;
+    cout<<"[5] cos(x) + 3x^2 - x"<<endl;
+    cout<<"[6] 1/6x^3 + 7/6x^2 - 3x + 2"<<endl;
     cin>>nrFunkcji;
 
     switch (nrFunkcji) {
         case 1:
             return funkcjaLiniowa;
         case 2:
-            return wartoscBezwzgledna;
+            return funkcjaKwadratowa;
         case 3:
-            return funkcjaTrygonometryczna;
+            return wartoscBezwzgledna;
         case 4:
-            return zlaczenieFunkcji;
+            return funkcjaTrygonometryczna;
         case 5:
+            return zlaczenieFunkcji;
+        case 6:
             return wielomian;
     }
 }
@@ -137,19 +138,12 @@ double metodaGaussaLaguerra (double *tablicaPierwiastkow, double *tablicaWag, in
 double wyliczFunkcjeAproksymujaca(int stopien, double x) {
     vector<double> tablicaWielomianow = wyliczTabliceWielomianow(stopien, x);
     double wynik = 0;
-    //cout<<endl<<"x"<<x<<endl;
-    //cout<<"stopien"<<stopien<<endl<<endl;
+
     for(int i = 0; i <= stopien; i++) {
         double calka = metodaGaussaLaguerra(tablicaWartosci[liczbaWezlow-2][0], tablicaWartosci[liczbaWezlow-2][1], liczbaWezlow, i);
-            //double calka = obliczKwadratureNetwonaCotesa(i);
         double skladnik = calka*tablicaWielomianow[i];
         wynik += skladnik;
-        /*cout<<"tab["<<i<<"]:"<<tablicaWielomianow[i]<<endl;
-        cout<<"ca³ka: "<<obliczKwadratureNetwonaCotesa(i)<<endl;
-        cout<<"skladnik: "<<skladnik<<endl;
-        cout<<"wynik skladowy: "<<wynik<<endl<<endl;*/
     }
-    //cout<<"WYNIK: "<<wynik<<endl<<endl;
     return wynik;
 }
 
@@ -216,8 +210,6 @@ void wybierzParametry() {
     wybierzPrzedzial();
     wybierzDokladnosc();
     wybierzLiczbeWezlowDoObliczeniaCalki();
-    //dokladnosc = 0.001;
-
     wybierzDokladnoscLubStopienWielomianuAproksymacji();
 }
 
