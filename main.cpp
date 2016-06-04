@@ -201,7 +201,7 @@ void wybierzDokladnoscLubStopienWielomianuAproksymacji () {
 }
 
 void wybierzLiczbeWezlowDoObliczeniaCalki() {
-    cout<<endl<<"Wybierz liczbe wezlow do obliczenia calki(2,3,4,5): ";
+    cout<<"Wybierz liczbe wezlow do obliczenia calki(2,3,4,5): ";
     cin>>liczbaWezlow;
 }
 
@@ -272,9 +272,6 @@ double obliczKwadratureNetwonaCotesa(int stopien) {
     return sumaCalkowita;
 }
 
-
-
-
 //-------RYSOWANIE-------
 void rysujWykres(vector<double> vecX, vector<double> vecY, string nazwa, Gnuplot &plot) {
     plot.set_style( "lines" );
@@ -299,18 +296,13 @@ void rysujFunkcjeAproksymujaca(Gnuplot &plot, int liczbaProbek)
     vector<double> vecX(liczbaProbek+1);
     vector<double> vecY(liczbaProbek+1);
     double krok = (koniecPrzedzialu - poczatekPrzedzialu) / liczbaProbek;
-        cout<<"przed forem"<<endl;
 
     for (int i=0; i<=liczbaProbek; i++) {
         vecX[i] = poczatekPrzedzialu + i*krok;
-       // cout<<i<<endl;
         vecY[i] = wyliczFunkcjeAproksymujaca(stopienWielomianuAproksymacyjnego, vecX[i]);
     }
-            cout<<"po forze"<<endl;
 
     rysujWykres(vecX, vecY, "funkcja wyjsciowa", plot);
-            cout<<"po rysowaniu"<<endl;
-
     getchar();
 }
 
@@ -331,11 +323,8 @@ void rysujWszystko()
 {
     int liczbaProbek = 100;
     Gnuplot gnuplot = przygotujGnuPlota();
-    cout<<"przed wejsciowa"<<endl;
     rysujFunkcjeWejsciowa(gnuplot, liczbaProbek);
-    cout<<"przed wyjsciowa"<<endl;
     rysujFunkcjeAproksymujaca(gnuplot, liczbaProbek);
-    cout<<"po wyjsciowa"<<endl;
 
     getchar();
 }
@@ -343,7 +332,8 @@ void rysujWszystko()
 int main()
 {
     wybierzParametry();
+    cout<<"Blad: "<<obliczBlad(poczatekPrzedzialu, koniecPrzedzialu, stopienWielomianuAproksymacyjnego)<<endl;
     rysujWszystko();
-    cout<<"Blad: "<<obliczBlad(poczatekPrzedzialu, koniecPrzedzialu, stopienWielomianuAproksymacyjnego);
+
     return 0;
 }
